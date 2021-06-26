@@ -10,8 +10,6 @@
 
 
 
-
-
 Install
 
 ```sh
@@ -27,6 +25,26 @@ uvicorn main:app --reload
 Run online
 
 ```sh
-uvicorn main:app --host 0.0.0.0 --port 80
+nohup uvicorn main:app --host 0.0.0.0 --port 80 &
 ```
+
+
+
+信号 example (Tradingview)
+
+```json
+{
+	"symbol": "{{exchange}}:{{ticker}}",
+	"long_price": {{plot_0}},
+	"stop_long": {{plot_1}},
+	"short_price": {{plot_2}},
+	"stop_short": {{plot_3}},
+  "curr_price": {{close}},
+  "action": "status"
+}
+```
+
+action = {status, open, add}
+
+Post json to https://xxx.com/tv_order_trend
 
