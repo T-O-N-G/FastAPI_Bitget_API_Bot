@@ -63,7 +63,7 @@ def tv_order_trend(orderInfo: OrderInfo):
 
     curr_positions = swapAPI.get_current_Track('cmt_btcusdt', '1', '100')  # 这里bg有bug，symbol是无效的=-=
     order_to_close = []
-    order_size = 10
+    order_size = 9
     averageOpenPrice = 1000000.0
     if order_side == 1:   # 当前持有空，接下来开多
         averageOpenPrice = 0.0001
@@ -76,9 +76,9 @@ def tv_order_trend(orderInfo: OrderInfo):
             if position["holdSide"] == 2 or order_side == 1:
                 averageOpenPrice = min(averageOpenPrice, position["averageOpenPrice"])
 
-    if order_side == 1 and (averageOpenPrice-orderInfo.curr_price)/averageOpenPrice > 0.04:
+    if order_side == 1 and (averageOpenPrice-orderInfo.curr_price)/averageOpenPrice > 0.005:
         order_size = 10
-    elif order_side == 2 and (orderInfo.curr_price-averageOpenPrice)/averageOpenPrice > 0.04:
+    elif order_side == 2 and (orderInfo.curr_price-averageOpenPrice)/averageOpenPrice > 0.005:
         order_size = 10
     else:
         order_size += 1
