@@ -66,15 +66,15 @@ def tv_order_trend(orderInfo: OrderInfo):
     order_size = 0
     averageOpenPrice = 1000000.0
     if order_side == 1:   # 当前持有空，接下来开多
-        averageOpenPrice = 0.0
+        averageOpenPrice = 0.0001
     for position in curr_positions:
         if position["symbol"] == "cmt_btcusdt" and position["holdSide"] != order_side:
             order_to_close.append(position["orderNo"])
-            order_size = max(int(position["openDealCount"]), order_size)
+            order_size = max(int(float(position["openDealCount"])), order_size)
             if position["holdSide"] == 1 or order_side == 2:
-                averageOpenPrice = min(averageOpenPrice, position["averageOpenPrice"])
-            if position["holdSide"] == 2 or order_side == 1:
                 averageOpenPrice = max(averageOpenPrice, position["averageOpenPrice"])
+            if position["holdSide"] == 2 or order_side == 1:
+                averageOpenPrice = min(averageOpenPrice, position["averageOpenPrice"])
 
     if order_side == 1 and (averageOpenPrice-orderInfo.curr_price)/averageOpenPrice > 0.04:
         order_size = 10
@@ -88,19 +88,20 @@ def tv_order_trend(orderInfo: OrderInfo):
     for order in order_to_close:
         result = optionAPI.close_track_order('cmt_btcusdt', order)
         print(result)
+        ding_bot(result)
         time.sleep(1.1)
 
     if (orderInfo.action == "status" and len(order_to_close) > 0) or (orderInfo.action == "status" and len(curr_positions) == 0) or orderInfo.action == "open":
-        result = optionAPI.take_order(symbol='cmt_btcusdt', client_oid=str(uuid.uuid4())[0:46], size='10', type=str(order_side),
+        result = optionAPI.take_order(symbol='cmt_btcusdt', client_oid=str(uuid.uuid4())[0:46], size=str(order_size), type=str(order_side),
                                       order_type='0', match_price='1', price='', presetTakeProfitPrice='', presetStopLossPrice='')
         print(result)
 
         time.sleep(1.2)
-        result = optionAPI.take_order(symbol='cmt_btcusdt', client_oid=str(uuid.uuid4())[0:46], size='10', type=str(order_side),
+        result = optionAPI.take_order(symbol='cmt_btcusdt', client_oid=str(uuid.uuid4())[0:46], size=str(order_size), type=str(order_side),
                                       order_type='0', match_price='1', price='', presetTakeProfitPrice='', presetStopLossPrice='')
         print(result)
-    ding_bot(orderInfo)
-    return result
+        ding_bot(result)
+    return "ok"
 
 #         method : POST
 #         参数名	参数类型	是否必须	描述
