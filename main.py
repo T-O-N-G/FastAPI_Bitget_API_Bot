@@ -89,14 +89,14 @@ def tv_order_trend(orderInfo: OrderInfo):
         result = optionAPI.close_track_order('cmt_btcusdt', order)
         print(result)
         ding_bot(result)
-        time.sleep(1.1)
+        time.sleep(1.3)
 
-    if (orderInfo.action == "status" and len(order_to_close) > 0) or (orderInfo.action == "status" and len(curr_positions) == 0) or orderInfo.action == "open":
+    if len(order_to_close) > 0 or len(curr_positions) == 0 or orderInfo.action == "add":
         result = optionAPI.take_order(symbol='cmt_btcusdt', client_oid=str(uuid.uuid4())[0:46], size=str(order_size), type=str(order_side),
                                       order_type='0', match_price='1', price='', presetTakeProfitPrice='', presetStopLossPrice='')
         print(result)
 
-        time.sleep(1.2)
+        time.sleep(1.4)
         result = optionAPI.take_order(symbol='cmt_btcusdt', client_oid=str(uuid.uuid4())[0:46], size=str(order_size), type=str(order_side),
                                       order_type='0', match_price='1', price='', presetTakeProfitPrice='', presetStopLossPrice='')
         print(result)
