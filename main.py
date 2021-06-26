@@ -61,13 +61,13 @@ def tv_order_trend(orderInfo: OrderInfo):
     if orderInfo.short_price != None and orderInfo.stop_short != None:
         order_side = 2
 
-    result = swapAPI.get_current_Track('cmt_btcusdt', '1', '100')  # 这里bg有bug，symbol是无效的=-=
+    curr_positions = swapAPI.get_current_Track('cmt_btcusdt', '1', '100')  # 这里bg有bug，symbol是无效的=-=
     order_to_close = []
     order_size = 0
     averageOpenPrice = 1000000.0
     if order_side == 1:   # 当前持有空，接下来开多
         averageOpenPrice = 0.0
-    for position in result:
+    for position in curr_positions:
         if position["symbol"] == "cmt_btcusdt" and position["holdSide"] != order_side:
             order_to_close.append(position["orderNo"])
             order_size = max(int(position["openDealCount"]), order_size)
@@ -90,7 +90,7 @@ def tv_order_trend(orderInfo: OrderInfo):
         # print(result)
         time.sleep(1.1)
 
-    if (orderInfo.action == "status" and len(order_to_close) > 0) or orderInfo.action == "open":
+    if (orderInfo.action == "status" and len(order_to_close) > 0) or (orderInfo.action == "status" and len(curr_positions) == 0) or orderInfo.action == "open":
         result = optionAPI.take_order(symbol='cmt_btcusdt', client_oid=str(uuid.uuid4())[0:46], size='10', type=str(order_side),
                                       order_type='0', match_price='1', price='', presetTakeProfitPrice='', presetStopLossPrice='')
         # print(result)
