@@ -34,13 +34,13 @@ nohup uvicorn main:app --host 0.0.0.0 --port 80 &
 
 ```json
 {
-	"symbol": "{{exchange}}:{{ticker}}",
-	"long_price": {{plot_0}},
-	"stop_long": {{plot_1}},
-	"short_price": {{plot_2}},
-	"stop_short": {{plot_3}},
-  "curr_price": {{close}},
-  "action": "status"
+    "symbol": "{{exchange}}:{{ticker}}",
+    "long_price": {{plot_0}},
+    "stop_long": {{plot_1}},
+    "short_price": {{plot_2}},
+    "stop_short": {{plot_3}},
+    "curr_price": {{close}},
+    "action": "status"
 }
 ```
 
