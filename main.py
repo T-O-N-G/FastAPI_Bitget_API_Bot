@@ -60,6 +60,9 @@ def tv_order_trend(orderInfo: OrderInfo):
     order_side = 1
     if orderInfo.short_price != None and orderInfo.stop_short != None:
         order_side = 2
+        ding_bot("curr_price="+str(orderInfo.curr_price)+", add_short="+str(orderInfo.short_price)+", stop_long="+str(orderInfo.stop_short))
+    else:
+        ding_bot("curr_price="+str(orderInfo.curr_price)+", add_long="+str(orderInfo.long_price)+", stop_long="+str(orderInfo.stop_long))
 
     curr_positions = swapAPI.get_current_Track('cmt_btcusdt', '1', '100')  # 这里bg有bug，symbol是无效的=-=
     order_to_close = []
@@ -90,7 +93,6 @@ def tv_order_trend(orderInfo: OrderInfo):
     for order in order_to_close:
         result = optionAPI.close_track_order('cmt_btcusdt', order)
         print(result)
-        ding_bot(result)
         time.sleep(1.6)
 
     if len(order_to_close) > 0 or len(curr_positions) == 0 or orderInfo.action == "add":
@@ -102,7 +104,6 @@ def tv_order_trend(orderInfo: OrderInfo):
         result = optionAPI.take_order(symbol='cmt_btcusdt', client_oid=str(uuid.uuid4())[0:46], size=str(order_size), type=str(order_side),
                                       order_type='0', match_price='1', price='', presetTakeProfitPrice='', presetStopLossPrice='')
         print(result)
-        ding_bot(result)
     return "ok"
 
 #         method : POST
