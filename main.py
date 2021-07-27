@@ -60,13 +60,13 @@ def tv_order_trend(orderInfo: OrderInfo):
     order_side = 1
     if orderInfo.short_price != None and orderInfo.stop_short != None:
         order_side = 2
-        ding_bot("curr_price="+str(orderInfo.curr_price)+", add_short="+str(orderInfo.short_price)+", stop_long="+str(orderInfo.stop_short))
+        ding_bot("curr_price="+str(orderInfo.curr_price)+", add_short="+str(orderInfo.short_price)+", stop_short="+str(orderInfo.stop_short))
     else:
         ding_bot("curr_price="+str(orderInfo.curr_price)+", add_long="+str(orderInfo.long_price)+", stop_long="+str(orderInfo.stop_long))
 
     curr_positions = swapAPI.get_current_Track('cmt_btcusdt', '1', '100')  # 这里bg有bug，symbol是无效的=-=
     order_to_close = []
-    order_size = 39
+    order_size = 29
     averageOpenPrice = 1000000.0
     if order_side == 1:   # 当前持有空，接下来开多
         averageOpenPrice = 0.0001
@@ -80,15 +80,15 @@ def tv_order_trend(orderInfo: OrderInfo):
                 averageOpenPrice = min(averageOpenPrice, position["averageOpenPrice"])
 
     if order_side == 1 and (averageOpenPrice-orderInfo.curr_price)/averageOpenPrice > 0.05:
-        order_size = 40
+        order_size = 30
     elif order_side == 2 and (orderInfo.curr_price-averageOpenPrice)/averageOpenPrice > 0.05:
-        order_size = 40
+        order_size = 30
     else:
         order_size += 1
     if order_size > 80:
         order_size = 80
-    if order_size < 40:
-        order_size = 40
+    if order_size < 30:
+        order_size = 30
 
     for order in order_to_close:
         result = optionAPI.close_track_order('cmt_btcusdt', order)
