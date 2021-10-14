@@ -4,11 +4,11 @@ from .consts import *
 
 class OptionAPI(Client):
 
-    def __init__(self, api_key, api_secret_key, passphrase, use_server_time=False, first=False):
-        Client.__init__(self, api_key, api_secret_key,
-                        passphrase, use_server_time, first)
+    def __init__(self, api_key, api_secret_key, passphrase,use_server_time=False, first=False):
+        Client.__init__(self, api_key, api_secret_key, passphrase, use_server_time,first)
 
-    def take_order(self, symbol, client_oid, size, type, order_type, match_price, price='', presetTakeProfitPrice='', presetStopLossPrice=''):
+
+    def take_order(self, symbol,client_oid, size, type, order_type, match_price,price='' ):
         '''
         下单
         method : POST
@@ -30,13 +30,12 @@ class OptionAPI(Client):
             params['type'] = type
             params['order_type'] = order_type
             params['match_price'] = match_price
-            params['presetTakeProfitPrice'] = presetTakeProfitPrice
-            params['presetStopLossPrice'] = presetStopLossPrice
             if price:
                 params['price'] = price
             return self._request_with_params(POST, API_OPTION_ORDER + "/placeOrder", params)
         else:
             return "pls check args "
+
 
     def take_orders(self, symbol, order_data):
         '''
@@ -51,6 +50,7 @@ class OptionAPI(Client):
         '''
         params = {'symbol': symbol, 'order_data': order_data}
         return self._request_with_params(POST, API_OPTION_ORDER + "/batchOrders", params)
+
 
     def revoke_order(self, symbol, order_id):
         '''
@@ -69,6 +69,7 @@ class OptionAPI(Client):
         else:
             return "pls check args"
 
+
     def revoke_orders(self, symbol, ids=''):
         '''
         批量撤单
@@ -86,7 +87,8 @@ class OptionAPI(Client):
         else:
             return "pls check args"
 
-    def take_plan_order(self, symbol, size, type, side, match_type, execute_price, trigger_price, holdSide, client_oid=''):
+
+    def take_plan_order(self,symbol,size,type,side,match_type,execute_price,trigger_price,holdSide,client_oid=''):
         '''
         计划委托下单
         method : POST
@@ -117,7 +119,10 @@ class OptionAPI(Client):
         else:
             return "pls check args "
 
-    def take_cancel_plan(self, symbol, orderId):
+
+
+
+    def take_cancel_plan(self,symbol,orderId):
         '''
         计划委托撤单
         method : POST
@@ -134,7 +139,9 @@ class OptionAPI(Client):
         else:
             return "pls check args "
 
-    def get_currentPlan(self, symbol, side, pageIndex, pageSize, delegateType, startTime='', endTime='',):
+
+
+    def get_currentPlan(self,symbol,side,pageIndex,pageSize,delegateType,startTime='',endTime='',):
         '''
         查询当前计划委托
         method : GET
@@ -149,7 +156,7 @@ class OptionAPI(Client):
         :return:
         '''
         params = {}
-        if symbol and pageIndex and pageSize and delegateType:
+        if symbol and side and pageIndex and pageSize and delegateType:
             params["symbol"] = symbol
             params["side"] = side
             params["delegateType"] = delegateType
@@ -161,7 +168,9 @@ class OptionAPI(Client):
         else:
             return "pls check args"
 
-    def get_historyPlan(self, symbol, side, pageIndex, pageSize, delegateType, startTime='', endTime=''):
+
+
+    def get_historyPlan(self,symbol,side,pageIndex,pageSize,delegateType,startTime='',endTime=''):
         '''
         查询计划历史委托
         method : GET
@@ -188,6 +197,9 @@ class OptionAPI(Client):
         else:
             return "pls check args"
 
+
+
+
     def get_order_info(self, symbol, orderId):
         '''
         获取单订单信息
@@ -199,45 +211,46 @@ class OptionAPI(Client):
         '''
         if symbol and orderId:
             params = {}
-            return self._request_with_params(GET, API_OPTION_ORDER + "/detail?symbol={symbol}&orderId={orderId}".format(symbol=symbol, orderId=orderId), params)
+            return self._request_with_params(GET, API_OPTION_ORDER + "/detail?symbol={symbol}&orderId={orderId}".format(symbol=symbol,orderId=orderId),params)
         else:
             return "pls check args"
 
-    def get_order_history(self, symbol, pageIndex, pageSize, createDate):
-        '''
-        获取订单历史列表
-        method : GET
-        参数名	参数类型	是否必须	描述
-        :param symbol: String	是	合约code
-        :param pageIndex: String	是	 页码数，默认是第1页
-        :param pageSize: String	是	 每页条数
-        :param createDate:  int	是	天数必须小于或等于90
-        :return:
-        '''
-        params = {}
-        if symbol and pageIndex and pageSize and createDate:
-            params["symbol"] = symbol
-            params["pageIndex"] = pageIndex
-            params["pageSize"] = pageSize
-            params["createDate"] = createDate
-            return self._request_with_params(GET, API_OPTION_ORDER+"/history", params, cursor=True)
-        else:
-            return "pls check args"
+    def get_order_history(self,symbol,pageIndex,pageSize,createDate):
+         '''
+         获取订单历史列表
+         method : GET
+         参数名	参数类型	是否必须	描述
+         :param symbol: String	是	合约code
+         :param pageIndex: String	是	 页码数，默认是第1页
+         :param pageSize: String	是	 每页条数
+         :param createDate:  int	是	天数必须小于或等于90
+         :return:
+         '''
+         params = {}
+         if symbol and pageIndex and pageSize and createDate:
+             params["symbol"] = symbol
+             params["pageIndex"] = pageIndex
+             params["pageSize"] = pageSize
+             params["createDate"] = createDate
+             return self._request_with_params(GET,API_OPTION_ORDER+"/history",params,cursor=True)
+         else:
+             return "pls check args"
 
-    def get_order_current(self, symbol):
-        '''
-        获取订单历史列表
-        method : GET
-        参数名	参数类型	是否必须	描述
-        :param symbol: String	是	合约code
-        :return:
-        '''
-        params = {}
-        if symbol:
-            params["symbol"] = symbol
-            return self._request_with_params(GET, API_OPTION_ORDER+"/current", params)
-        else:
-            return "pls check args"
+    def get_order_current(self,symbol):
+          '''
+          获取订单历史列表
+          method : GET
+          参数名	参数类型	是否必须	描述
+          :param symbol: String	是	合约code
+          :return:
+          '''
+          params={}
+          if symbol:
+             params["symbol"]=symbol
+             return self._request_with_params(GET,API_OPTION_ORDER+"/current",params)
+          else:
+             return "pls check args"
+
 
     def get_fills(self, symbol, orderId):
         '''
@@ -251,12 +264,13 @@ class OptionAPI(Client):
         params = {}
         if symbol and orderId:
             params['symbol'] = symbol
-            params["orderId"] = orderId
+            params["orderId"]=orderId
             return self._request_with_params(GET, API_OPTION_ORDER + "/fills", params, cursor=True)
         else:
             return "pls check args"
 
-    def close_track_order(self, symbol, trackingNo):
+
+    def close_track_order(self,symbol,trackingNo):
         '''
         下单平仓单(跟单）
         method : POST
@@ -269,6 +283,6 @@ class OptionAPI(Client):
         if symbol and trackingNo:
             params['symbol'] = symbol
             params["trackingNo"] = trackingNo
-            return self._request_with_params(POST, API_TRACE+'/closeTrackOrder', params, cursor=True)
+            return self._request_with_params(POST,API_TRACE+'/closeTrackOrder',params,cursor=True)
         else:
             return "pls check args"

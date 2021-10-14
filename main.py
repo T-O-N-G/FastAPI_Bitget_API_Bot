@@ -61,6 +61,8 @@ class StrategyInfo(BaseModel):
 
 app = FastAPI()
 
+# indicator alarm template
+
 
 @app.post("/tv_order_trend/")
 def tv_order_trend(orderInfo: OrderInfo):
@@ -113,33 +115,12 @@ def tv_order_trend(orderInfo: OrderInfo):
         print(result)
     return "ok"
 
-#         method : POST
-#         参数名	参数类型	是否必须	描述
-#         :param symbol: String	是	合约名称
-#         :param client_oid: String	是	自定义订单号(不超过50个字符，且不能是特殊字符，如火星字符等)
-#         :param size: String	是	下单数量（不能为0，不能为负数）
-#         :param type: String	是	1:开多 2:开空 3:平多 4:平空
-#         :param order_type: String	是	0:普通，1：只做maker;2:全部成交或立即取消;3:立即成交并取消剩余
-#         :param match_price: String	是	0:限价还是1:市价
-#         :param price: String	否	委托价格（有精度限制，精度（tick_size）和步长（priceEndStep）取“合约信息接口”，限价必填）
-#         :return:
-# result = optionAPI.take_order(symbol='cmt_btcusdt', client_oid=str(uuid.uuid4())[0:46], size='10', type='1',
-#                               order_type='0', match_price='1', price='', presetTakeProfitPrice='', presetStopLossPrice='')
-# print(result)
-# time.sleep(1.5)
-
-# result = swapAPI.get_current_Track('cmt_btcusdt', '1', '100')  # 这里bg有bug，symbol是无效的=-=
-# order_to_close = []
-# print("-------------------------------------")
-# for position in result:
-#     if position["symbol"] == "cmt_btcusdt":
-#         print(position["holdSide"])
-#         print(position["averageOpenPrice"])
-#         print(position["orderNo"])
-#         print(position["openTime"])
-#         order_to_close.append(position["orderNo"])
+# strategy alarm template
 
 
 @app.post("/tv_order_er/")
 def tv_order_trend(strategyInfo: StrategyInfo):
-    print(StrategyInfo)
+    print("ticker", strategyInfo.ticker, "order_action", strategyInfo.order_action,
+          "order_contracts", strategyInfo.order_contracts, "position_size", strategyInfo.position_size)
+
+    
