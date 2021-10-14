@@ -52,6 +52,13 @@ class OrderInfo(BaseModel):
     curr_price: Optional[float] = None
 
 
+class StrategyInfo(BaseModel):
+    order_action: Optional[str] = None
+    order_contracts: Optional[str] = None
+    ticker: Optional[str] = None
+    position_size: Optional[float] = None
+
+
 app = FastAPI()
 
 
@@ -80,15 +87,15 @@ def tv_order_trend(orderInfo: OrderInfo):
                 averageOpenPrice = min(averageOpenPrice, position["averageOpenPrice"])
 
     if order_side == 1 and (averageOpenPrice-orderInfo.curr_price)/averageOpenPrice > 0.05:
-        order_size = 30
+        order_size = 50
     elif order_side == 2 and (orderInfo.curr_price-averageOpenPrice)/averageOpenPrice > 0.05:
-        order_size = 30
+        order_size = 50
     else:
         order_size += 1
     if order_size > 80:
         order_size = 80
-    if order_size < 30:
-        order_size = 30
+    if order_size < 50:
+        order_size = 50
 
     for order in order_to_close:
         result = optionAPI.close_track_order('cmt_btcusdt', order)
@@ -131,3 +138,8 @@ def tv_order_trend(orderInfo: OrderInfo):
 #         print(position["orderNo"])
 #         print(position["openTime"])
 #         order_to_close.append(position["orderNo"])
+
+
+@app.post("/tv_order_er/")
+def tv_order_trend(strategyInfo: StrategyInfo):
+    print(StrategyInfo)
