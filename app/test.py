@@ -20,6 +20,8 @@ import bitget.swap_api as swap
 config = ConfigParser()
 
 config.read('myapi.config', encoding='UTF-8')
+
+
 class StrategyInfo(BaseModel):
     order_action: Optional[str] = None
     order_contracts: Optional[float] = None
@@ -42,14 +44,32 @@ traceApi = trace.TraceApi(api_key, secret_key, passphrase, use_server_time=False
 
 # result = positionApi.single_position(symbol='BTCUSDT_UMCBL', marginCoin='USDT')
 # positionData = result["data"]
-
-
+symbol = 'ETHUSDT_UMCBL'
+new_side = 'open_long'
 # result = positionApi.all_position(productType='mix_type')
 # print(result)
 
 # result = orderApi.current('BTCUSDT_UMCBL')
 # print(result)
 
-result = traceApi.current_track('ETHUSDT_UMCBL', 'umcbl')
-for order in result["data"]:
-    print(order)
+# result = traceApi.current_track('ETHUSDT_UMCBL', 'umcbl')
+# for order in result["data"]:
+#     print(order)
+
+# result = orderApi.place_order(symbol=symbol, marginCoin='USDT', size=0.01, side=new_side, orderType='market', price='', timeInForceValue='normal')
+# print(result)
+
+result = traceApi.current_track(symbol, 'umcbl')
+order_to_close = []
+
+for cur_order in result["data"]:
+    # if strategyInfo.order_action == "buy" and strategyInfo.position_size > 0 and cur_order["holdSide"] == "short":
+    # new_side = "open_long"
+    order_to_close.append(cur_order["trackingNo"])
+    # order_to_close.append(cur_order["openOrderId"])
+    # elif strategyInfo.order_action == "sell" and strategyInfo.position_size < 0 and cur_order["holdSide"] == "buy":
+    # new_side = "open_short"
+    # order_to_close.append(cur_order["trackingNo"])
+for orderNo in order_to_close:
+    traceApi.close_track_order(symbol, orderNo)
+    time.sleep(1)
