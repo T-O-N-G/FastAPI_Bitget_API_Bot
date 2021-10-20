@@ -8,6 +8,12 @@ import requests
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+import bitget.mix.account_api as accounts
+import bitget.mix.market_api as market
+import bitget.mix.order_api as order
+import bitget.mix.plan_api as plan
+import bitget.mix.trace_api as trace
+import bitget.mix.position_api as position
 import bitget.option_api as option
 import bitget.swap_api as swap
 
@@ -22,6 +28,12 @@ passphrase = config['bitget_main']['pass']
 
 swapAPI = swap.SwapAPI(api_key, secret_key, passphrase, use_server_time=True, first=False)
 optionAPI = option.OptionAPI(api_key, secret_key, passphrase, use_server_time=True, first=True)
+# marketApi = market.MarketApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
+# accountApi = accounts.AccountApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
+# positionApi = position.PositionApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
+orderApi = order.OrderApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
+# planApi = plan.PlanApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
+traceApi = trace.TraceApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
 
 
 dingUrl = "https://oapi.dingtalk.com/robot/send?access_token=8bd78539539ee4fe42e671be13287813802dddaad79d0bad0b1e268883aec156"
@@ -54,7 +66,7 @@ class OrderInfo(BaseModel):
 
 class StrategyInfo(BaseModel):
     order_action: Optional[str] = None
-    order_contracts: Optional[str] = None
+    order_contracts: Optional[float] = None
     ticker: Optional[str] = None
     position_size: Optional[float] = None
 
@@ -115,12 +127,44 @@ def tv_order_trend(orderInfo: OrderInfo):
         print(result)
     return "ok"
 
+
 # strategy alarm template
-
-
 @app.post("/tv_order_er/")
 def tv_order_trend(strategyInfo: StrategyInfo):
     print("ticker", strategyInfo.ticker, "order_action", strategyInfo.order_action,
           "order_contracts", strategyInfo.order_contracts, "position_size", strategyInfo.position_size)
+    order_size = 0.0
+    if "BTC" in strategyInfo.ticker:
+        symbol = 'BTCUSDT_UMCBL'
+        order_size = 0.001
 
-    
+    if "ETH" in strategyInfo.ticker:
+        symbol = 'ETHUSDT_UMCBL'
+        order_size = 0.02
+
+    result = traceApi.current_track(symbol, 'umcbl')
+    order_to_close = []
+
+    new_side = ''
+
+    # find positions need to close
+    for cur_order in result["data"]:
+        if strategyInfo.order_action == "buy" and strategyInfo.position_size > 0 and cur_order["holdSide"] == "short":
+            new_side = "open_long"
+            order_to_close.append(cur_order["trackingNo"])
+            # order_to_close.append(cur_order["openOrderId"])
+        elif strategyInfo.order_action == "sell" and strategyInfo.position_size < 0 and cur_order["holdSide"] == "buy":
+            new_side = "open_short"
+            order_to_close.append(cur_order["trackingNo"])
+        else:
+            pass
+            # do alarm
+
+    # do close positions
+    for orderNo in order_to_close:
+        traceApi.close_track_order(symbol, orderNo)
+
+    # open new position
+    result = orderApi.place_order(symbol=symbol, marginCoin='USDT', size=order_size, side=new_side, orderType='market', price='', timeInForceValue='normal')
+    print(result)
+    return "ok"

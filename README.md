@@ -2,35 +2,32 @@
 
 仅实现个人需要的功能
 
-场景为交易员
+场景为交易员，普通场景也适用
 
-因BG的API限制，所以用同步模式实现
-
-修改了BG的SDK，加入开仓预设止损的字段
+因BG的API限制，所以用同步模式实现, sleep是防止触发API的频繁访问限制
 
 
-
-Install
+### Install
 
 ```sh
 pip install "fastapi[all]"
 ```
 
-Run dev
+### Run 
+dev
 
 ```sh
 uvicorn main:app --reload
 ```
 
-Run online
+online
 
 ```sh
 nohup uvicorn main:app --host 0.0.0.0 --port 80 &
 ```
 
 
-
-信号 example (Tradingview)
+### 信号 example (Tradingview)
 
 ```json
 {
@@ -46,5 +43,19 @@ nohup uvicorn main:app --host 0.0.0.0 --port 80 &
 
 action = {status, open, add}
 
-Post json to https://xxx.com/tv_order_trend
+Post json to https://xxx.com/tv_order_trend/
+
+
+### 策略 example (Tradingview)
+
+```json
+{
+    "order_action": "{{strategy.order.action}}",
+    "order_contracts": "{{strategy.order.contracts}}",
+    "ticker": "{{ticker}}",
+    "position_size": "{{strategy.position_size}}"
+}
+```
+
+Post json to https://xxx.com/tv_order_er/
 
