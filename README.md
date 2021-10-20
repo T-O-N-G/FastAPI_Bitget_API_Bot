@@ -14,17 +14,33 @@ pip install "fastapi[all]"
 ```
 
 ### Run 
-dev
+Dev
 
 ```sh
 uvicorn main:app --reload
 ```
 
-online
+Online
 
 ```sh
 nohup uvicorn main:app --host 0.0.0.0 --port 80 &
 ```
+
+Docker
+
+1. Create `myapi.config` in app/
+2. Build docker image
+
+```sh
+docker build -t fastapi .
+```
+
+3. Run example
+
+```sh
+docker run -d --restart=always --name fastAPI -p 3001:80 fastapi
+```
+
 
 
 ### 信号 example (Tradingview)
