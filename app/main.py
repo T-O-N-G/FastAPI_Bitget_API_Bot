@@ -150,7 +150,7 @@ def tv_order_trend(strategyInfo: StrategyInfo):
     new_side = ''
     if strategyInfo.order_action == "buy" and strategyInfo.position_size > 0:
         new_side = "open_long"
-    if strategyInfo.order_action == "sell" and strategyInfo.position_size < 0 and cur_order["holdSide"] == "buy":
+    if strategyInfo.order_action == "sell" and strategyInfo.position_size < 0:
         new_side = "open_short"
 
     # find positions need to close
