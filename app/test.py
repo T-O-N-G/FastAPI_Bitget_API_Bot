@@ -44,7 +44,7 @@ traceApi = trace.TraceApi(api_key, secret_key, passphrase, use_server_time=False
 
 # result = positionApi.single_position(symbol='BTCUSDT_UMCBL', marginCoin='USDT')
 # positionData = result["data"]
-symbol = 'ETHUSDT_UMCBL'
+symbol = 'BTCUSDT_UMCBL'
 new_side = 'open_long'
 # result = positionApi.all_position(productType='mix_type')
 # print(result)
@@ -63,13 +63,14 @@ result = traceApi.current_track(symbol, 'umcbl')
 order_to_close = []
 
 for cur_order in result["data"]:
-    # if strategyInfo.order_action == "buy" and strategyInfo.position_size > 0 and cur_order["holdSide"] == "short":
+    if cur_order["holdSide"] == "short":
     # new_side = "open_long"
-    order_to_close.append(cur_order["trackingNo"])
+        order_to_close.append(cur_order["trackingNo"])
     # order_to_close.append(cur_order["openOrderId"])
     # elif strategyInfo.order_action == "sell" and strategyInfo.position_size < 0 and cur_order["holdSide"] == "buy":
     # new_side = "open_short"
     # order_to_close.append(cur_order["trackingNo"])
-for orderNo in order_to_close:
-    traceApi.close_track_order(symbol, orderNo)
-    time.sleep(1)
+# for orderNo in order_to_close:
+#     traceApi.close_track_order(symbol, orderNo)
+#     time.sleep(1)
+print(order_to_close)

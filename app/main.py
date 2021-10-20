@@ -143,9 +143,9 @@ def tv_order_trend(strategyInfo: StrategyInfo):
         order_size = 0.02
 
     new_side = ''
-    if strategyInfo.order_action == "buy" and strategyInfo.position_size > 0:
+    if strategyInfo.order_action == "buy":
         new_side = "open_long"
-    if strategyInfo.order_action == "sell" and strategyInfo.position_size < 0:
+    if strategyInfo.order_action == "sell":
         new_side = "open_short"
 
     result = traceApi.current_track(symbol, 'umcbl')
@@ -154,10 +154,10 @@ def tv_order_trend(strategyInfo: StrategyInfo):
     # find positions need to close
     order_to_close = []
     for cur_order in result["data"]:
-        if strategyInfo.order_action == "buy" and strategyInfo.position_size > 0 and cur_order["holdSide"] == "short":
+        if strategyInfo.order_action == "buy" and cur_order["holdSide"] == "short":
             order_to_close.append(cur_order["trackingNo"])
             # order_to_close.append(cur_order["openOrderId"])
-        elif strategyInfo.order_action == "sell" and strategyInfo.position_size < 0 and cur_order["holdSide"] == "buy":
+        elif strategyInfo.order_action == "sell" and cur_order["holdSide"] == "long":
             order_to_close.append(cur_order["trackingNo"])
         else:
             pass
