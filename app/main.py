@@ -22,15 +22,17 @@ config = ConfigParser()
 config.read('myapi.config', encoding='UTF-8')
 
 
-api_key = config['bitget_main']['api_key']
-secret_key = config['bitget_main']['secret']
-passphrase = config['bitget_main']['pass']
+api_key = config['bitget_second']['api_key']
+secret_key = config['bitget_second']['secret']
+passphrase = config['bitget_second']['pass']
+trader = config['bitget_second']['trader']
+
 
 swapAPI = swap.SwapAPI(api_key, secret_key, passphrase, use_server_time=True, first=False)
 optionAPI = option.OptionAPI(api_key, secret_key, passphrase, use_server_time=True, first=True)
 # marketApi = market.MarketApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
 # accountApi = accounts.AccountApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
-# positionApi = position.PositionApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
+positionApi = position.PositionApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
 orderApi = order.OrderApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
 # planApi = plan.PlanApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
 traceApi = trace.TraceApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
@@ -148,25 +150,38 @@ def tv_order_trend(strategyInfo: StrategyInfo):
     if strategyInfo.order_action == "sell":
         new_side = "open_short"
 
-    result = traceApi.current_track(symbol, 'umcbl')
-    time.sleep(1)
-
-    # find positions need to close
-    order_to_close = []
-    for cur_order in result["data"]:
-        if strategyInfo.order_action == "buy" and cur_order["holdSide"] == "short":
-            order_to_close.append(cur_order["trackingNo"])
-            # order_to_close.append(cur_order["openOrderId"])
-        elif strategyInfo.order_action == "sell" and cur_order["holdSide"] == "long":
-            order_to_close.append(cur_order["trackingNo"])
-        else:
-            pass
-            # do alarm
-
-    # do close positions
-    for orderNo in order_to_close:
-        result = traceApi.close_track_order(symbol, orderNo)
+    # find positions need to close - trader
+    if trader=='true':
+        result = traceApi.current_track(symbol, 'umcbl')
         time.sleep(1)
+        order_to_close = []
+        for cur_order in result["data"]:
+            if strategyInfo.order_action == "buy" and cur_order["holdSide"] == "short":
+                order_to_close.append(cur_order["trackingNo"])
+            elif strategyInfo.order_action == "sell" and cur_order["holdSide"] == "long":
+                order_to_close.append(cur_order["trackingNo"])
+            else:
+                pass
+                # do alarm
+
+        # do close positions
+        for orderNo in order_to_close:
+            result = traceApi.close_track_order(symbol, orderNo)
+            time.sleep(1)
+
+    # find positions need to close - normal
+    if trader=='false':
+        result = positionApi.single_position(symbol, marginCoin='USDT')
+        positions = result["data"]
+        for positionData in positions:
+            # print(positionData["side"], positionData["available"])
+            if float(positionData["available"]) > 0 and strategyInfo.order_action == "sell" and positionData["holdSide"] == "long":
+                result = orderApi.place_order(symbol=symbol, marginCoin='USDT', size=positionData["available"], side='close_long', orderType='market', price='', timeInForceValue='normal')
+
+            if float(positionData["available"]) > 0 and strategyInfo.order_action == "buy" and positionData["holdSide"] == "short":
+                result = orderApi.place_order(symbol=symbol, marginCoin='USDT', size=positionData["available"], side='close_short', orderType='market', price='', timeInForceValue='normal')
+
+            time.sleep(1)
 
     # open new position
     result = orderApi.place_order(symbol=symbol, marginCoin='USDT', size=order_size, side=new_side, orderType='market', price='', timeInForceValue='normal')

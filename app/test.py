@@ -32,6 +32,7 @@ class StrategyInfo(BaseModel):
 api_key = config['bitget_main']['api_key']
 secret_key = config['bitget_main']['secret']
 passphrase = config['bitget_main']['pass']
+trader = config['bitget_main']['trader']
 
 # swapAPI = swap.SwapAPI(api_key, secret_key, passphrase, use_server_time=True, first=False)
 # optionAPI = option.OptionAPI(api_key, secret_key, passphrase, use_server_time=True, first=True)
@@ -42,10 +43,21 @@ orderApi = order.OrderApi(api_key, secret_key, passphrase, use_server_time=False
 # planApi = plan.PlanApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
 traceApi = trace.TraceApi(api_key, secret_key, passphrase, use_server_time=False, first=False)
 
-# result = positionApi.single_position(symbol='BTCUSDT_UMCBL', marginCoin='USDT')
-# positionData = result["data"]
+
 symbol = 'BTCUSDT_UMCBL'
-new_side = 'open_long'
+# new_side = 'open_long'
+
+result = positionApi.single_position(symbol, marginCoin='USDT')
+positions = result["data"]
+for positionData in positions:
+    # print(positionData["side"], positionData["available"])
+    if float(positionData["available"]) > 0:
+        result = orderApi.place_order(symbol=symbol, marginCoin='USDT', size=positionData["available"], side='close_long', orderType='market', price='', timeInForceValue='normal')
+
+    if float(positionData["available"]) > 0:
+        result = orderApi.place_order(symbol=symbol, marginCoin='USDT', size=positionData["available"], side='close_short', orderType='market', price='', timeInForceValue='normal')
+
+
 # result = positionApi.all_position(productType='mix_type')
 # print(result)
 
@@ -59,18 +71,24 @@ new_side = 'open_long'
 # result = orderApi.place_order(symbol=symbol, marginCoin='USDT', size=0.01, side=new_side, orderType='market', price='', timeInForceValue='normal')
 # print(result)
 
-result = traceApi.current_track(symbol, 'umcbl')
-order_to_close = []
+# result = traceApi.current_track(symbol, 'umcbl')
+# order_to_close = []
 
-for cur_order in result["data"]:
-    if cur_order["holdSide"] == "short":
-    # new_side = "open_long"
-        order_to_close.append(cur_order["trackingNo"])
-    # order_to_close.append(cur_order["openOrderId"])
-    # elif strategyInfo.order_action == "sell" and strategyInfo.position_size < 0 and cur_order["holdSide"] == "buy":
-    # new_side = "open_short"
-    # order_to_close.append(cur_order["trackingNo"])
-# for orderNo in order_to_close:
-#     traceApi.close_track_order(symbol, orderNo)
-#     time.sleep(1)
-print(order_to_close)
+# for cur_order in result["data"]:
+#     if cur_order["holdSide"] == "short":
+#     # new_side = "open_long"
+#         order_to_close.append(cur_order["trackingNo"])
+#     # order_to_close.append(cur_order["openOrderId"])
+#     # elif strategyInfo.order_action == "sell" and strategyInfo.position_size < 0 and cur_order["holdSide"] == "buy":
+#     # new_side = "open_short"
+#     # order_to_close.append(cur_order["trackingNo"])
+# # for orderNo in order_to_close:
+# #     traceApi.close_track_order(symbol, orderNo)
+# #     time.sleep(1)
+# print(order_to_close)
+
+if trader=='true':
+    print('trader')
+
+if trader=='false':
+    print('normal')
