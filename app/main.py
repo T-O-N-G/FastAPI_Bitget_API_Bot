@@ -142,24 +142,22 @@ def tv_order_trend(strategyInfo: StrategyInfo):
         symbol = 'ETHUSDT_UMCBL'
         order_size = 0.02
 
-    result = traceApi.current_track(symbol, 'umcbl')
-    time.sleep(1)
-
-    order_to_close = []
-
     new_side = ''
     if strategyInfo.order_action == "buy" and strategyInfo.position_size > 0:
         new_side = "open_long"
     if strategyInfo.order_action == "sell" and strategyInfo.position_size < 0:
         new_side = "open_short"
 
+    result = traceApi.current_track(symbol, 'umcbl')
+    time.sleep(1)
+
     # find positions need to close
+    order_to_close = []
     for cur_order in result["data"]:
         if strategyInfo.order_action == "buy" and strategyInfo.position_size > 0 and cur_order["holdSide"] == "short":
             order_to_close.append(cur_order["trackingNo"])
             # order_to_close.append(cur_order["openOrderId"])
         elif strategyInfo.order_action == "sell" and strategyInfo.position_size < 0 and cur_order["holdSide"] == "buy":
-            new_side = "open_short"
             order_to_close.append(cur_order["trackingNo"])
         else:
             pass
@@ -167,10 +165,10 @@ def tv_order_trend(strategyInfo: StrategyInfo):
 
     # do close positions
     for orderNo in order_to_close:
-        traceApi.close_track_order(symbol, orderNo)
+        result = traceApi.close_track_order(symbol, orderNo)
         time.sleep(1)
 
     # open new position
     result = orderApi.place_order(symbol=symbol, marginCoin='USDT', size=order_size, side=new_side, orderType='market', price='', timeInForceValue='normal')
-    print(result)
+    # print(result)
     return "ok"
