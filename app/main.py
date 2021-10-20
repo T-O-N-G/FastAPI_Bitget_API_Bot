@@ -146,7 +146,7 @@ def tv_order_trend(strategyInfo: StrategyInfo):
     order_to_close = []
 
     new_side = ''
-
+    time.sleep(1)
     # find positions need to close
     for cur_order in result["data"]:
         if strategyInfo.order_action == "buy" and strategyInfo.position_size > 0 and cur_order["holdSide"] == "short":
@@ -163,7 +163,8 @@ def tv_order_trend(strategyInfo: StrategyInfo):
     # do close positions
     for orderNo in order_to_close:
         traceApi.close_track_order(symbol, orderNo)
-
+        time.sleep(1)
+        
     # open new position
     result = orderApi.place_order(symbol=symbol, marginCoin='USDT', size=order_size, side=new_side, orderType='market', price='', timeInForceValue='normal')
     print(result)

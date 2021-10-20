@@ -1,0 +1,5 @@
+pydantic>=1.8.0,<2.0.0
+requests==2.26.0
+fastapi==0.70.0
+websocket_client==1.2.1
+uvicorn>=0.15.0,<0.16.0
