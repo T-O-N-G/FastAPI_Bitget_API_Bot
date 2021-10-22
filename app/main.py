@@ -64,6 +64,7 @@ class OrderInfo(BaseModel):
     action: Optional[str] = None
     symbol: Optional[str] = None
     curr_price: Optional[float] = None
+    # size: Optional[float] = None
 
 
 class StrategyInfo(BaseModel):
@@ -71,6 +72,7 @@ class StrategyInfo(BaseModel):
     order_contracts: Optional[float] = None
     ticker: Optional[str] = None
     position_size: Optional[float] = None
+    size: Optional[float] = None
 
 
 app = FastAPI()
@@ -135,14 +137,12 @@ def tv_order_trend(orderInfo: OrderInfo):
 def tv_order_trend(strategyInfo: StrategyInfo):
     print("ticker", strategyInfo.ticker, "order_action", strategyInfo.order_action,
           "order_contracts", strategyInfo.order_contracts, "position_size", strategyInfo.position_size)
-    order_size = 0.0
+    order_size = strategyInfo.size
     if "BTC" in strategyInfo.ticker:
         symbol = 'BTCUSDT_UMCBL'
-        order_size = 0.001
 
     if "ETH" in strategyInfo.ticker:
         symbol = 'ETHUSDT_UMCBL'
-        order_size = 0.02
 
     new_side = ''
     if strategyInfo.order_action == "buy":
@@ -151,7 +151,7 @@ def tv_order_trend(strategyInfo: StrategyInfo):
         new_side = "open_short"
 
     # find positions need to close - trader
-    if trader=='true':
+    if trader == 'true':
         result = traceApi.current_track(symbol, 'umcbl')
         time.sleep(1)
         order_to_close = []
@@ -170,7 +170,7 @@ def tv_order_trend(strategyInfo: StrategyInfo):
             time.sleep(1)
 
     # find positions need to close - normal
-    if trader=='false':
+    if trader == 'false':
         result = positionApi.single_position(symbol, marginCoin='USDT')
         positions = result["data"]
         for positionData in positions:
