@@ -22,10 +22,10 @@ config = ConfigParser()
 config.read('myapi.config', encoding='UTF-8')
 
 
-api_key = config['bitget_second']['api_key']
-secret_key = config['bitget_second']['secret']
-passphrase = config['bitget_second']['pass']
-trader = config['bitget_second']['trader']
+api_key = config['bitget_main']['api_key']
+secret_key = config['bitget_main']['secret']
+passphrase = config['bitget_main']['pass']
+trader = config['bitget_main']['trader']
 
 
 swapAPI = swap.SwapAPI(api_key, secret_key, passphrase, use_server_time=True, first=False)
